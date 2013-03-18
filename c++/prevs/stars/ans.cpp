@@ -9,14 +9,20 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-
+#define BIG 1000000
 using namespace std;
 
 struct level {
     int one;
     int two;
 };
-
+void printVect(vector<int> in){
+    for (int i =0; i<in.size(); i++) {
+        cout.width(3);
+        cout<<(in[i]!=BIG?in[i]:-1)<<" ";
+    }
+    cout<<endl;
+}
 bool onecomp(level a, level b){
     return a.one > b.one;
 }
@@ -26,12 +32,27 @@ bool twocomp(level a, level b){
 
 
 int mindex(vector<int>& vect){
-    int min = vect[0];
+    int min = vect[0];//big number
     int index = 0;
     for(int i =1; i<vect.size();i++){
         if(vect[i] < min){
             min = vect[i];
             index = i;
+        }
+    }
+    return index;
+}
+
+int bestMatch(vector<int> ones, vector<int> twos,int stars,int mdex){
+    int max = twos[mdex];
+    int index = mdex;
+    for (int i =0; i<ones.size(); i++) {
+        
+        if (ones[i] <= stars) {
+            if (twos[i]>max) {
+                max = twos[i];
+                index = i;
+            }
         }
     }
     return index;
@@ -56,15 +77,12 @@ int main(int argc, const char * argv[])
             twos.push_back(star2);
         }
         //read in of data is done.
-        //sort it first.
-//        sort(twos.begin(), twos.end());
-//        sort(ones.begin(), ones.end());
-//this will be an optomization but would require a sort function and a struct.
+        //sort it first?
         int mdex;
         bool stuck = 0;
         while (!twos.empty()&&!stuck) {
             if (twos[(mdex = mindex(twos))]<=stars) {
-                if (ones[mdex]==-1)
+                if (ones[mdex]==BIG)
                     stars+=1;
                 else
                     stars+=2;
@@ -74,7 +92,9 @@ int main(int argc, const char * argv[])
                 //not sure if that will work correctly...
             }
             else if (ones[(mdex = mindex(ones))]<=stars){
-                ones[mdex] = -1;
+                //find best match (ie ones that fulfils and twos taht is the highest
+                mdex = bestMatch(ones, twos, stars, mdex);
+                ones[mdex] = BIG;
                 stars+=1;
                 plays++;
             }
